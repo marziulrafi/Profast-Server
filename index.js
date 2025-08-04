@@ -57,7 +57,7 @@ async function run() {
         });
 
 
-       
+
         app.post('/parcels', async (req, res) => {
             try {
                 const newParcel = req.body;
@@ -82,6 +82,24 @@ async function run() {
                 res.status(500).send({ message: 'Failed to delete parcel' });
             }
         });
+
+
+        app.post("/tracking", async (req, res) => {
+            const { tracking_id, parcel_id, status, message, updated_by = '' } = req.body;
+
+            const log = {
+                tracking_id,
+                parcel_id: parcel_id ? new ObjectId(parcel_id) : undefined,
+                status,
+                message,
+                time: new Date(),
+                updated_by,
+            };
+
+            const result = await trackingCollection.insertOne(log);
+            res.send({ success: true, insertedId: result.insertedId });
+        });
+
 
 
         await client.db("admin").command({ ping: 1 });
